@@ -14,6 +14,8 @@ public class GameWorld {
 	private int zombieMoveCount;
 	private int victimMoveCount;
 	private int hunterMoveCount;
+	private int zombieBites;
+	private int hunterSlays;
 	
 	
 	// Default constructor, assume 10x10.
@@ -104,44 +106,117 @@ public class GameWorld {
 	public boolean processHunterMove(Cell cell){
 		int x = cell.getX();
 		int y = cell.getY();
-		int zombieNeighbors = 0;
 		
 		Cell possibleMove = null;
-		List<Cell> allPossibleMoves = new LinkedList<Cell>();
+		List<Cell> emptyPossibleMoves = new LinkedList<Cell>();
+		List<Cell> zombieNeighbors = new LinkedList<Cell>();
 		
 		// Check North
 		possibleMove = getTileAt(x - 1, y);
-		if(possibleMove != null && (possibleMove.getCellType() == Cell.CellType.Empty || possibleMove.getCellType() == Cell.CellType.Zombie))
-			allPossibleMoves.add(possibleMove);
+		if(possibleMove != null){
+			if(possibleMove.getCellType() == Cell.CellType.Empty)
+				emptyPossibleMoves.add(possibleMove);
+			else if (possibleMove.getCellType() == Cell.CellType.Zombie)
+				zombieNeighbors.add(possibleMove);
+		}
 		
 		// Check West
 		possibleMove = getTileAt(x, y - 1);
-		if(possibleMove != null && (possibleMove.getCellType() == Cell.CellType.Empty || possibleMove.getCellType() == Cell.CellType.Zombie))
-			allPossibleMoves.add(possibleMove);
+		if(possibleMove != null){
+			if(possibleMove.getCellType() == Cell.CellType.Empty)
+				emptyPossibleMoves.add(possibleMove);
+			else if (possibleMove.getCellType() == Cell.CellType.Zombie)
+				zombieNeighbors.add(possibleMove);
+		}
+
+		// Check North West
+		possibleMove = getTileAt(x - 1, y - 1);
+		if(possibleMove != null){
+			if(possibleMove.getCellType() == Cell.CellType.Empty)
+				emptyPossibleMoves.add(possibleMove);
+			else if (possibleMove.getCellType() == Cell.CellType.Zombie)
+				zombieNeighbors.add(possibleMove);
+		}
+		
+		// Check North East
+		possibleMove = getTileAt(x - 1, y + 1);
+		if(possibleMove != null){
+			if(possibleMove.getCellType() == Cell.CellType.Empty)
+				emptyPossibleMoves.add(possibleMove);
+			else if (possibleMove.getCellType() == Cell.CellType.Zombie)
+				zombieNeighbors.add(possibleMove);
+		}
 		
 		// Check South
 		possibleMove = getTileAt(x + 1, y);
-		if(possibleMove != null && (possibleMove.getCellType() == Cell.CellType.Empty || possibleMove.getCellType() == Cell.CellType.Zombie))
-			allPossibleMoves.add(possibleMove);		
+		if(possibleMove != null){
+			if(possibleMove.getCellType() == Cell.CellType.Empty)
+				emptyPossibleMoves.add(possibleMove);
+			else if (possibleMove.getCellType() == Cell.CellType.Zombie)
+				zombieNeighbors.add(possibleMove);
+		}
+		
+		// Check South West
+		possibleMove = getTileAt(x + 1, y - 1);
+		if(possibleMove != null){
+			if(possibleMove.getCellType() == Cell.CellType.Empty)
+				emptyPossibleMoves.add(possibleMove);
+			else if (possibleMove.getCellType() == Cell.CellType.Zombie)
+				zombieNeighbors.add(possibleMove);
+		}
+		
+		// Check South East
+		possibleMove = getTileAt(x + 1, y + 1);
+		if(possibleMove != null){
+			if(possibleMove.getCellType() == Cell.CellType.Empty)
+				emptyPossibleMoves.add(possibleMove);
+			else if (possibleMove.getCellType() == Cell.CellType.Zombie)
+				zombieNeighbors.add(possibleMove);
+		}
 		
 		// Check East
 		possibleMove = getTileAt(x, y + 1);
-		if(possibleMove != null && (possibleMove.getCellType() == Cell.CellType.Empty || possibleMove.getCellType() == Cell.CellType.Zombie))
-			allPossibleMoves.add(possibleMove);
+		if(possibleMove != null){
+			if(possibleMove.getCellType() == Cell.CellType.Empty)
+				emptyPossibleMoves.add(possibleMove);
+			else if (possibleMove.getCellType() == Cell.CellType.Zombie)
+				zombieNeighbors.add(possibleMove);
+		}
 		
-		if(allPossibleMoves.isEmpty())
+		if(emptyPossibleMoves.isEmpty() && zombieNeighbors.isEmpty())
 			return false;
 		
-		possibleMove = allPossibleMoves.get(generateRandomNumber(allPossibleMoves.size()));
-		
-		if(possibleMove.getCellType() == Cell.CellType.Empty){
-			cell.setCellType(Cell.CellType.Empty);
-			possibleMove.setCellType(Cell.CellType.Hunter);
-		} else if(possibleMove.getCellType() == Cell.CellType.Zombie){
-			cell.setCellType(Cell.CellType.Empty);
-			possibleMove.setCellType(Cell.CellType.Hunter);
+		if(zombieNeighbors.size() > 1){
+			Cell currCell = zombieNeighbors.get(generateRandomNumber(zombieNeighbors.size()));
+			zombieNeighbors.remove(currCell);
+			emptyPossibleMoves.add(currCell);
+			
+			currCell.setCellType(Cell.CellType.Empty);
 			numberOfZombies--;
+			
+			currCell = zombieNeighbors.get(generateRandomNumber(zombieNeighbors.size()));
+			zombieNeighbors.remove(currCell);
+			emptyPossibleMoves.add(currCell);
+			
+			currCell.setCellType(Cell.CellType.Empty);	
+			numberOfZombies--;
+			
+			hunterSlays+=2;
+		} else if(zombieNeighbors.size() > 0){
+			Cell currCell = zombieNeighbors.get(0);
+			zombieNeighbors.remove(currCell);
+			emptyPossibleMoves.add(currCell);
+			
+			currCell.setCellType(Cell.CellType.Empty);
+			numberOfZombies--;
+			hunterSlays++;
+			
 		}
+		possibleMove = emptyPossibleMoves.get(generateRandomNumber(emptyPossibleMoves.size()));
+		
+		cell.setCellType(Cell.CellType.Empty);
+		possibleMove.setCellType(Cell.CellType.Hunter);
+		
 		
 		possibleMove.setAlreadyMoved(true);
 		
@@ -187,10 +262,12 @@ public class GameWorld {
 			possibleMove.setCellType(Cell.CellType.Zombie);
 			numberOfVictims--;
 			numberOfZombies++;
+			zombieBites++;
 		} else if(possibleMove.getCellType() == Cell.CellType.Hunter){
 			possibleMove.setCellType(Cell.CellType.Zombie);
 			numberOfHunters--;
 			numberOfZombies++;
+			zombieBites++;
 		}
 		
 		possibleMove.setAlreadyMoved(true);
@@ -306,6 +383,22 @@ public class GameWorld {
 
 	public void setHunterMoveCount(int hunterMoveCount) {
 		this.hunterMoveCount = hunterMoveCount;
+	}
+
+	public int getHunterSlays() {
+		return hunterSlays;
+	}
+
+	public void setHunterSlays(int hunterSlays) {
+		this.hunterSlays = hunterSlays;
+	}
+
+	public int getZombieBites() {
+		return zombieBites;
+	}
+
+	public void setZombieBites(int zombieBites) {
+		this.zombieBites = zombieBites;
 	}
 
 }

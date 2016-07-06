@@ -42,4 +42,12 @@ public class DisplayWorld {
 		
 		System.out.println(display.toString());
 	}
+	
+	public void gameOver(){
+		System.out.println("Number of zombie bites: " + world.getZombieBites());
+		System.out.println("Number of hunter slays: " + world.getHunterSlays());
+		System.out.println("Human moves: " + world.getHunterMoveCount());
+		System.out.println("Zombie moves: " + world.getZombieMoveCount());
+		System.out.println("Hunter moves: " + world.getHunterMoveCount());
+	}
 }

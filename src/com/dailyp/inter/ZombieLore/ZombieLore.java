@@ -11,13 +11,16 @@ public class ZombieLore {
 		world.randomizeBoard();
 		display.displayWorld();
 		
-		while(totalmoves < 50){// || (world.getNumberOfHumans() > 0 && world.getNumberOfZombies() > 0)){
+		while(world.getNumberOfHumans() > 0 && world.getNumberOfHunters() > 0 && world.getNumberOfZombies() > 0){
 			world.processAllMoves();
 			display.displayWorld();
 			Thread.sleep(3000);
 			totalmoves++;
-			System.out.println("Total Moves: " + totalmoves);
 		}
+		
+		display.gameOver();
+		
+		System.out.println("Total Moves: " + totalmoves);
 	}
 
 }
